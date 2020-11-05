@@ -1,0 +1,40 @@
+version: '3.3'
+
+networks:
+    net:
+
+services:
+
+  postgres_db:
+    networks:
+        - net
+    image: postgres:latest
+    ports:
+        - '6666:6666'
+    environment:
+        POSTGRES_PASSWORD: iheb
+        POSTGRES_DB: postgresdb
+    volumes:
+      - './mypostgresql/data:/var/lib/postgresql/data'
+    container_name: my-postgres
+
+
+  goChain:
+    networks:
+        - 'net'
+    depends_on: 
+    - "postgres_db"
+    image: blockchain/gochain
+    container_name: go-chain
+    links: 
+    - postgres_db
+    build:
+     context: .
+     dockerfile: Dockerfile
+    environment:
+        IP: 0.0.0.0
+        PORT: 8000
+        POSTGRES_URL: postgres_db
+        POSTGRES_PASSWORD: iheb
+    ports:
+        - '8000:8000'
